@@ -25,7 +25,7 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
-    dbsqlcli -e ./data_lake/database_ddl.sql --hostname $DATABRICKS_HOST --http-path $HTTP_PATH --access-token $DATABRICKS_TOKEN
+    dbsqlcli -e ./data_lake/database_ddl.sql --hostname $DATABRICKS_HOST --http-path $HTTP_PATH --access-token $DATABRICKS_TOKEN --clirc anyfile
   displayName: 'Create Databases'
   env:
     DATABRICKS_TOKEN: $(DATABRICKS_TOKEN)
@@ -40,7 +40,7 @@ steps:
         for TABLE_DDL_FILE in $DATABASE_DIRECTORY/*.sql
         do
           echo "Running DDL in $TABLE_DDL_FILE"
-          dbsqlcli -e $TABLE_DDL_FILE --hostname $DATABRICKS_HOST --http-path $HTTP_PATH --access-token $DATABRICKS_TOKEN
+          dbsqlcli -e $TABLE_DDL_FILE --hostname $DATABRICKS_HOST --http-path $HTTP_PATH --access-token $DATABRICKS_TOKEN --clirc anyfile
         done
       fi
     done
