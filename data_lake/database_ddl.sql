@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS raw 
+-- LOCATION "new/location/here"
+-- COMMENT "THIS IS A COMMENT"

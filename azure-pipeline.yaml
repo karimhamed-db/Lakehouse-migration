@@ -1,0 +1,52 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: 3.8
+  displayName: 'Use Python 3.8'
+
+- checkout: self
+  persistCredentials: true
+  clean: true
+
+- script: git checkout main
+  displayName: 'Get latest branch'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install databricks-sql-cli
+  displayName: 'Install dependencies'
+
+- script: |
+    dbsqlcli -e ./data_lake/database_ddl.sql --hostname $DATABRICKS_HOST --http-path $HTTP_PATH --access-token $DATABRICKS_TOKEN
+  displayName: 'Create Databases'
+  env:
+    DATABRICKS_TOKEN: $(DATABRICKS_TOKEN)
+
+- script: |
+    for DATABASE_DIRECTORY in ./data_lake/*
+    do
+      if [ -d "$DATABASE_DIRECTORY" ]
+      then
+        DATABASE_NAME=$(basename $DATABASE_DIRECTORY)
+        echo "Building database $DATABASE_NAME"
+        for TABLE_DDL_FILE in $DATABASE_DIRECTORY/*.sql
+        do
+          echo "Creating $TABLE_DDL_FILE in $DATABASE_NAME"
+          dbsqlcli -e $DATABASE_DIRECTORY/$TABLE_DDL_FILE --hostname $DATABRICKS_HOST --http-path $HTTP_PATH --access-token $DATABRICKS_TOKEN
+        done
+      fi
+    done
+  displayName: 'Create tables'
+  env:
+    DATABRICKS_TOKEN: $(DATABRICKS_TOKEN) 
