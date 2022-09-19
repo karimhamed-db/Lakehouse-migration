@@ -19,9 +19,6 @@ steps:
   persistCredentials: true
   clean: true
 
-- script: git checkout main
-  displayName: 'Get latest branch'
-
 - script: |
     python -m pip install --upgrade pip
     pip install databricks-sql-cli
@@ -42,8 +39,8 @@ steps:
         echo "Building database $DATABASE_NAME"
         for TABLE_DDL_FILE in $DATABASE_DIRECTORY/*.sql
         do
-          echo "Creating $TABLE_DDL_FILE in $DATABASE_NAME"
-          dbsqlcli -e $DATABASE_DIRECTORY/$TABLE_DDL_FILE --hostname $DATABRICKS_HOST --http-path $HTTP_PATH --access-token $DATABRICKS_TOKEN
+          echo "Running DDL in $TABLE_DDL_FILE"
+          dbsqlcli -e $TABLE_DDL_FILE --hostname $DATABRICKS_HOST --http-path $HTTP_PATH --access-token $DATABRICKS_TOKEN
         done
       fi
     done
